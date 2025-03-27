@@ -23,3 +23,4 @@ ios/Pods
 adabBackend/adabmobile-3821c-firebase-adminsdk-fbsvc-c7cc8f49ea.json
 adabBackend/firebase.js
 adabmobile/android/app/google-services.json
+adabBackend/src/controllers/invoices
