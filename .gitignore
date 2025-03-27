@@ -1,0 +1,25 @@
+# Node.js dependencies
+adabBackend/node_modules
+adabBackend/.env
+
+# React Native dependencies
+adabmobile/node_modules
+adabmobile/.env
+android/.gradle
+ios/Pods
+
+# Logs
+*.log
+ 
+.vercel
+
+
+
+
+
+
+
+# Ignore credential files
+adabBackend/adabmobile-3821c-firebase-adminsdk-fbsvc-c7cc8f49ea.json
+adabBackend/firebase.js
+adabmobile/android/app/google-services.json
