@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import {
-    View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList, ScrollView
+    View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList, ScrollView, Alert
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { UserDetailsContext } from '../../context/UserDetailsContext';
@@ -10,8 +10,7 @@ import { AuthContext } from '../../context/AuthContext';
 const Checkout = () => {
     const navigation = useNavigation();
     const route = useRoute();
-    const { fcmToken } = useContext(AuthContext);
-
+    const { fcmToken, emailVerification } = useContext(AuthContext);
     const { cartItems, totalPrice } = route.params || {};
     const { userDetails, loading } = useContext(UserDetailsContext);
 
@@ -22,6 +21,18 @@ const Checkout = () => {
     const [email, setEmail] = useState(userDetails?.email || '');
 
     const handlePlaceOrder = async () => {
+        if (!emailVerification) {
+            Alert.alert(
+                "Email Verification Required",
+                "Please verify your email before placing an order.",
+                [
+                    { text: "Verify Now", onPress: () => navigation.navigate('SendOTP') },
+                    { text: "Cancel", style: "cancel" }
+                ]
+            );
+            return;
+        }
+
         try {
             const orderData = {
                 userId: userDetails?._id,
@@ -35,22 +46,35 @@ const Checkout = () => {
                 totalPrice,
                 fcmToken
             };
+
             const response = await fetch(`${Base_URL}/api/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData),
             });
+
             const result = await response.json();
 
             if (response.ok) {
-                alert('🎉 Order placed successfully!');
-                navigation.navigate('Home');
+                Alert.alert(
+                    "🎉 Order Successful",
+                    "Your order has been placed successfully!",
+                    [{ text: "OK", onPress: () => navigation.navigate('Home') }]
+                );
             } else {
-                alert(`Failed to place order: ${result.message}`);
+                Alert.alert(
+                    "Order Failed",
+                    `Failed to place order: ${result.message}`,
+                    [{ text: "Try Again", style: "cancel" }]
+                );
             }
         } catch (error) {
             console.error('Error placing order:', error);
-            alert('Something went wrong!');
+            Alert.alert(
+                "Error",
+                "Something went wrong while placing the order.",
+                [{ text: "OK", style: "cancel" }]
+            );
         }
     };
 

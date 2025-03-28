@@ -8,47 +8,63 @@ import CategoryScreen from '../screens/CategoryScreen';
 import Icons from 'react-native-vector-icons/MaterialIcons';
 import Cart from '../screens/cart/Cart';
 import Checkout from '../screens/cart/Checkout';
+import SendOTPVerificationScreen from '../components/EmailVerification/SendOTPVerificationScreen';
 
 const Tab = createBottomTabNavigator();
-const HomeStack = createStackNavigator(); 
+const HomeStack = createStackNavigator();
 
 
 const HomeNavigator = () => (
   <HomeStack.Navigator>
-    <HomeStack.Screen 
-      name="Home" 
-      component={Home} 
-      options={{ headerShown: false }} 
+    <HomeStack.Screen
+      name="Home"
+      component={Home}
+      options={{ headerShown: false }}
     />
-    <HomeStack.Screen 
-      name="CategoryScreen" 
-      component={CategoryScreen} 
+    <HomeStack.Screen
+      name="CategoryScreen"
+      component={CategoryScreen}
       options={({ route }) => ({
         title: route.params.category,
         headerStyle: { backgroundColor: 'black' },
-        headerTintColor: 'white', 
-      })} 
+        headerTintColor: 'white',
+      })}
     />
-      <HomeStack.Screen 
-      name="Cart" 
-      component={Cart} 
+    <HomeStack.Screen
+      name="Cart"
+      component={Cart}
       options={({ route }) => ({
         headerStyle: { backgroundColor: 'black' },
-        headerTintColor: 'red', 
+        headerTintColor: 'red',
 
-      })} 
+      })}
+
     />
 
-<HomeStack.Screen 
-      name="Checkout" 
-      component={Checkout} 
+
+{/* <Stack.Screen name="SendOTP" component={SendOTPVerificationScreen} /> */}
+<HomeStack.Screen
+      name="SendOTP"
+      component={SendOTPVerificationScreen}
+      // component={Cart}
+      // options={({ route }) => ({
+      //   headerStyle: { backgroundColor: 'black' },
+      //   headerTintColor: 'red',
+
+      // })}
+
+    />
+
+    <HomeStack.Screen
+      name="Checkout"
+      component={Checkout}
       options={({ route }) => ({
         headerStyle: { backgroundColor: 'black' },
-        headerTintColor: 'red', 
+        headerTintColor: 'red',
 
-      })} 
+      })}
     />
-    
+
   </HomeStack.Navigator>
 );
 
@@ -57,9 +73,9 @@ const TabNavigator = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({
       headerShown: false,
-      tabBarStyle: { backgroundColor: 'black', height: 60 }, 
-      tabBarActiveTintColor: 'red', 
-      tabBarInactiveTintColor: 'gray', 
+      tabBarStyle: { backgroundColor: 'black', height: 60 },
+      tabBarActiveTintColor: 'red',
+      tabBarInactiveTintColor: 'gray',
       tabBarIcon: ({ color, size, focused }) => {
         let iconName;
         if (route.name === 'Home') {

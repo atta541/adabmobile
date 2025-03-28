@@ -6,7 +6,7 @@ import SlidingMenu from '../components/SlidingMenu';
 
 
 const Home = ({ navigation }) => {
-  const { token, logout } = useContext(AuthContext); 
+  const { token, logout,emailVerification } = useContext(AuthContext); 
 
   const handleLogout = async () => {
     await logout(); 
@@ -26,7 +26,9 @@ const Home = ({ navigation }) => {
 
       {/* Main Content */}
       <View style={styles.content}>
-        <Text style={styles.title}>Welcome to Adab </Text>
+        <Text style={styles.title}>Welcome to Ad  ab  </Text>
+        <Text style={styles.title}>Welcome! Email Verified: {emailVerification ? '✅ Verified' : '❌ Not Verified'}</Text>
+
 
         <Button title="Go to Atta" onPress={() => navigation.navigate('Atta')} />
         <Button title="view cart" onPress={() => navigation.navigate('Cart')} />
