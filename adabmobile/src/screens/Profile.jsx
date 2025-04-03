@@ -60,7 +60,7 @@ const Profile = ({ navigation }) => {
         onPress={() => navigation.navigate('orders')}
       >
         <View style={styles.buttonContent}>
-          <Icon name="parcel" size={20} color="black" style={styles.icon} />
+          <Icon name="orders_2" size={20} color="black" style={styles.icon} />
           <Text style={styles.buttonText}>Orders</Text>
         </View>
       </TouchableOpacity>

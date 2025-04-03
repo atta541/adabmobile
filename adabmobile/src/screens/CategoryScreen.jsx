@@ -57,6 +57,7 @@ const CategoryScreen = ({ route }) => {
           body: JSON.stringify({
             productId: item._id,
             quantity: 1,
+            
           }),   
         });
         

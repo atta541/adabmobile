@@ -85,6 +85,7 @@ exports.createOrder = async (req, res) => {
     try {
         const { name, email, phone, address, nearestPlace, cartItems, totalPrice, fcmToken } = req.body;
         const userId = req.body.userId || req.userId; 
+        console.log("cart items ", cartItems);
 
         if (!userId) {
             return res.status(400).json({ message: 'User ID is missing from the request' });
