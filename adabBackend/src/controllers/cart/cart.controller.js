@@ -85,8 +85,6 @@ exports.deleteFromCart = async (req, res) => {
   const userId = req.user.id; 
 
   
-  
-
   try {
     const cart = await Cart.findOne({ userId });
 
@@ -134,5 +132,29 @@ exports.getCart = async (req, res) => {
   } catch (error) {
       console.error('Error fetching cart:', error);
       res.status(500).json({ message: error.message });
+  }
+};
+
+
+
+exports.clearCart = async (userId) => { 
+  try {
+     
+    if (!userId) {
+      console.error('clearCart function: User ID is missing');
+      return false;
+    }
+
+    const cart = await Cart.findOneAndDelete({ userId });
+
+    if (!cart) {
+      console.error('clearCart function: Cart not found');
+      return false;
+    }
+
+    return true; 
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+    return false;
   }
 };

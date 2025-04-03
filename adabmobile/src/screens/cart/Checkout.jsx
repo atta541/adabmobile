@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import {
-    View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList, ScrollView, Alert
+    View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, FlatList, ScrollView, Alert, Modal
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { UserDetailsContext } from '../../context/UserDetailsContext';
@@ -19,6 +19,7 @@ const Checkout = () => {
     const [address, setAddress] = useState(userDetails?.address || '');
     const [nearestPlace, setNearestPlace] = useState('');
     const [email, setEmail] = useState(userDetails?.email || '');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handlePlaceOrder = async () => {
         if (!emailVerification) {
@@ -32,6 +33,8 @@ const Checkout = () => {
             );
             return;
         }
+
+        setIsLoading(true);
 
         try {
             const orderData = {
@@ -54,6 +57,7 @@ const Checkout = () => {
             });
 
             const result = await response.json();
+            setIsLoading(false);
 
             if (response.ok) {
                 Alert.alert(
@@ -69,6 +73,7 @@ const Checkout = () => {
                 );
             }
         } catch (error) {
+            setIsLoading(false);
             console.error('Error placing order:', error);
             Alert.alert(
                 "Error",
@@ -79,67 +84,78 @@ const Checkout = () => {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.title}>Checkout</Text>
-            <Text style={styles.subtitle}>Complete your order details below</Text>
-
-            {loading ? (
-                <ActivityIndicator size="large" color="#FFA500" />
-            ) : userDetails ? (
-                <View style={styles.inputContainer}>
-                    <TextInput style={styles.input} placeholder="Enter your name" value={name} onChangeText={setName} />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Enter your email"
-                        keyboardType="email-address"
-                        value={email}
-                        onChangeText={setEmail}
-                    />
-                    <TextInput style={styles.input} placeholder="Enter your phone number" keyboardType="phone-pad" value={phone} onChangeText={setPhone} />
-                    <TextInput style={styles.input} placeholder="Enter your address" value={address} onChangeText={setAddress} />
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Nearest Place (optional)"
-                        placeholderTextColor="#FFFFFF"
-                        value={nearestPlace}
-                        onChangeText={setNearestPlace}
-                    />
-                    <TextInput
-                        style={[styles.input, styles.disabledInput]}
-                        value="Lahore"
-                        editable={false}
-                    />
-                </View>
-            ) : (
-                <Text style={styles.subtitle}>User details not available</Text>
+        <View style={styles.container}>
+            {/* Loading Modal */}
+            {isLoading && (
+                <Modal transparent={true} animationType="fade">
+                    <View style={styles.loaderContainer}>
+                        <ActivityIndicator size="large" color="#FFA500" />
+                        <Text style={styles.loadingText}>Placing Order...</Text>
+                    </View>
+                </Modal>
             )}
 
-            {/* Cart Items Section */}
-            <Text style={styles.cartTitle}>🛒 Your Cart </Text>
-            <FlatList
-                data={cartItems}
-                keyExtractor={(item) => item._id.toString()}
-                renderItem={({ item }) => (
-                    <View style={styles.cartItem}>
-                        <Text style={styles.cartText}>
-                            {item.productId?.name || 'Unknown Product'} - {item.quantity} x PKR {item.price.toFixed(2)}
-                        </Text>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <Text style={styles.subtitle}>Complete your order details below</Text>
+
+                {loading ? (
+                    <ActivityIndicator size="large" color="#FFA500" />
+                ) : userDetails ? (
+                    <View style={styles.inputContainer}>
+                        <TextInput style={styles.input} placeholder="Enter your name" value={name} onChangeText={setName} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your email"
+                            keyboardType="email-address"
+                            value={email}
+                            onChangeText={setEmail}
+                        />
+                        <TextInput style={styles.input} placeholder="Enter your phone number" keyboardType="phone-pad" value={phone} onChangeText={setPhone} />
+                        <TextInput style={styles.input} placeholder="Enter your address" value={address} onChangeText={setAddress} />
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Nearest Place (optional)"
+                            placeholderTextColor="#FFFFFF"
+                            value={nearestPlace}
+                            onChangeText={setNearestPlace}
+                        />
+                        <TextInput
+                            style={[styles.input, styles.disabledInput]}
+                            value="Lahore"
+                            editable={false}
+                        />
                     </View>
+                ) : (
+                    <Text style={styles.subtitle}>User details not available</Text>
                 )}
-            />
-            <Text style={styles.totalPrice}>Total: PKR {totalPrice?.toFixed(2) || '0.00'}</Text>
 
-            {/* Action Buttons */}
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Text style={styles.backButtonText}>⬅ Back to Cart</Text>
-                </TouchableOpacity>
+                {/* Cart Items Section */}
+                <Text style={styles.cartTitle}>🛒 Your Cart </Text>
+                <FlatList
+                    data={cartItems}
+                    keyExtractor={(item) => item._id.toString()}
+                    renderItem={({ item }) => (
+                        <View style={styles.cartItem}>
+                            <Text style={styles.cartText}>
+                                {item.productId?.name || 'Unknown Product'} - {item.quantity} x PKR {item.price.toFixed(2)}
+                            </Text>
+                        </View>
+                    )}
+                />
+                <Text style={styles.totalPrice}>Total: PKR {totalPrice?.toFixed(2) || '0.00'}</Text>
 
-                <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
-                    <Text style={styles.orderButtonText}>✅ Place Order</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+                {/* Action Buttons */}
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                        <Text style={styles.backButtonText}>⬅ Back to Cart</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
+                        <Text style={styles.orderButtonText}>✅ Place Order</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+        </View>
     );
 };
 
@@ -147,16 +163,13 @@ export default Checkout;
 
 const styles = StyleSheet.create({
     container: {
-        flexGrow: 1,
+        flex: 1,
         backgroundColor: 'black',
         padding: 20,
         alignItems: 'center',
     },
-    title: {
-        fontSize: 26,
-        fontWeight: 'bold',
-        color: '#FFA500',
-        marginBottom: 5,
+    scrollContainer: {
+        flexGrow: 1,
     },
     subtitle: {
         fontSize: 16,
@@ -221,11 +234,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         elevation: 5,
     },
-    backButtonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: 'bold',
-    },
     orderButton: {
         backgroundColor: '#28A745',
         paddingVertical: 12,
@@ -236,9 +244,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         elevation: 5,
     },
-    orderButtonText: {
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    },
+    loadingText: {
         color: 'white',
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 18,
+        marginTop: 10,
     },
 });

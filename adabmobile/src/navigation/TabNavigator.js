@@ -60,15 +60,13 @@ const HomeNavigator = () => (
       component={Checkout}
       options={({ route }) => ({
         headerStyle: { backgroundColor: 'black' },
-        headerTintColor: 'red',
+        headerTintColor: '#FFA500',
 
       })}
     />
-
+ 
   </HomeStack.Navigator>
 );
-
-
 const TabNavigator = () => (
   <Tab.Navigator
     screenOptions={({ route }) => ({

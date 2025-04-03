@@ -3,15 +3,19 @@ import React, { useContext } from 'react';
 import Avator from '../components/Avator';
 import { AuthContext } from '../context/AuthContext';
 import SlidingMenu from '../components/SlidingMenu';
+import Clipboard from '@react-native-clipboard/clipboard';  // Import Clipboard
+
 
 
 const Home = ({ navigation }) => {
-  const { token, logout,emailVerification } = useContext(AuthContext); 
+  const { token,emailVerification } = useContext(AuthContext); 
 
-  const handleLogout = async () => {
-    await logout(); 
-    navigation.replace('Login');
+
+  const copyToClipboard = () => {
+    Clipboard.setString(token);  
+    // alert('Token copied to clipboard!'); 
   };
+
 
   return (
     <View style={styles.container}>
@@ -24,21 +28,23 @@ const Home = ({ navigation }) => {
         <SlidingMenu />
       </View>
 
-      {/* Main Content */}
-      <View style={styles.content}>
-        <Text style={styles.title}>Welcome to Ad  ab  </Text>
-        <Text style={styles.title}>Welcome! Email Verified: {emailVerification ? '✅ Verified' : '❌ Not Verified'}</Text>
+    
 
 
-        <Button title="Go to Atta" onPress={() => navigation.navigate('Atta')} />
-        <Button title="view cart" onPress={() => navigation.navigate('Cart')} />
+<View style={styles.content}>
+      <Text style={styles.title}>Welcome to Ad ab</Text>
+      <Text style={styles.title}>Welcome! Email Verified: {emailVerification ? '✅ Verified' : '❌ Not Verified'}</Text>
 
-        <View style={styles.logoutButton}>
-          <Button title="Logout" onPress={handleLogout} color="red" />
-        </View>
+      <Button title="Go to Atta" onPress={() => navigation.navigate('Atta')} />
+      <Button title="View Cart" onPress={() => navigation.navigate('Cart')} />
 
-        {token && <Text style={styles.tokenText}>Token: {token}</Text>}
-      </View>
+      {token && (
+        <>
+          <Text style={styles.tokenText}>Token: {token}</Text>
+          <Button title="Copy Token" onPress={copyToClipboard} />  {/* Copy button */}
+        </>
+      )}
+    </View>
     </View>
   );
 };

@@ -5,8 +5,12 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 const sendNotificationToDevice = require('../notifications/notification'); 
 
-const easyinvoice = require('easyinvoice');
+const Cart = require('../../models/cart.model');
 
+
+
+
+const easyinvoice = require('easyinvoice');
 const generateInvoice = async (order) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -75,28 +79,39 @@ const sendInvoiceEmail = async (order, filePath) => {
     return transporter.sendMail(mailOptions);
 };
 
+
+
 exports.createOrder = async (req, res) => {
     try {
-        console.log(req.body);
         const { name, email, phone, address, nearestPlace, cartItems, totalPrice, fcmToken } = req.body;
+        const userId = req.body.userId || req.userId; 
+
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is missing from the request' });
+        }
 
         if (!name || !email || !phone || !address || !cartItems.length || !totalPrice) {
             return res.status(400).json({ message: 'All fields are required!' });
         }
 
-        const newOrder = new Order({ name, email, phone, address, nearestPlace, cartItems, totalPrice });
+        const newOrder = new Order({ name, email, phone, address, nearestPlace, cartItems, totalPrice, userId });
 
         await newOrder.save();
         const invoicePath = await generateInvoice(newOrder);
         await sendInvoiceEmail(newOrder, invoicePath);
 
-        
         if (fcmToken) {
             await sendNotificationToDevice(
                 fcmToken,
                 'Your order has been placed',
                 `Hi ${name}, your order has been placed successfully. Your bill amount is ${totalPrice}.`
             );
+        }
+
+        const deletedCart = await clearCart(userId); 
+
+        if (!deletedCart) {
+            return res.status(404).json({ message: 'Cart not found' });
         }
 
         res.status(201).json({ message: 'Order placed successfully! Invoice sent.', order: newOrder });
@@ -108,8 +123,33 @@ exports.createOrder = async (req, res) => {
 
 
 
+const clearCart = async (userId) => { 
+  try {
+     
+    if (!userId) {
+      console.error('clearCart function: User ID is missing');
+      return false;
+    }
+
+    const cart = await Cart.findOneAndDelete({ userId });
+
+    if (!cart) {
+      console.error('clearCart function: Cart not found');
+      return false;
+    }
+
+    return true; 
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+    return false;
+  }
+};
+
+
 exports.getAllOrders = async (req, res) => {
+
     try {
+        console.log('Fetching all orders...');
         const orders = await Order.find().sort({ createdAt: -1 }).populate('cartItems.productId');
         res.status(200).json(orders);
     } catch (error) {
@@ -118,12 +158,27 @@ exports.getAllOrders = async (req, res) => {
 };
 
 
-exports.getOrderById = async (req, res) => {
+exports.getAllOrdersOfUser = async (req, res) => {
     try {
-        const order = await Order.findById(req.params.id).populate('cartItems.productId');
-        if (!order) return res.status(404).json({ message: 'Order not found!' });
-        res.status(200).json(order);
+
+        const userId = req.user.id; // Extract userId from req.user (set by authMiddleware)
+
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        console.log('Fetching orders for userId:', userId, 'Type:', typeof userId);
+
+        // Ensure userId is a string when querying the database
+        const orders = await Order.find({ userId: String(userId) });
+
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ message: 'No orders found for this user' });
+        }
+
+        res.status(200).json(orders);
     } catch (error) {
+        console.error('Error fetching orders:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
@@ -153,3 +208,6 @@ exports.deleteOrder = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+
+

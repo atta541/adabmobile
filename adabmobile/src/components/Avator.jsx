@@ -18,9 +18,7 @@ const Avatar = () => {
             <Text style={styles.logo}>آداب</Text>
         </View>
     );
-    // return (
-    //     <View style={styles.container}></View>
-    //         <Text style={styles.text}>{userDetails?.name || 'Guest'}</Text>
+    
 };
 
 export default Avatar;
@@ -33,9 +31,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 15, 
         paddingVertical: 10, 
         width: '100%', 
-        borderWidth: 1, 
-        borderColor: 'red', 
         borderRadius: 5, 
+        marginTop: 10,
     },
     text: {
         fontSize: 18,
