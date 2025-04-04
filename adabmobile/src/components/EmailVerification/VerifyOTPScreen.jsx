@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import Base_URL from '../../../Base_URL';
 
 const VerifyOTPScreen = () => {
-    const { token } = useContext(AuthContext);
+    const { token, updateEmailVerificationStatus } = useContext(AuthContext);
     const [otp, setOtp] = useState('');
     const [email, setEmail] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -27,6 +27,7 @@ const VerifyOTPScreen = () => {
             const data = await response.json();
             if (response.ok) {
                 alert('Email verified successfully');
+                updateEmailVerificationStatus(true); 
                 navigation.navigate('CheckVerification'); 
             } else {
                 setErrorMessage(data.message || 'Invalid OTP');

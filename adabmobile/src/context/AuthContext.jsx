@@ -8,7 +8,7 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [token, setToken] = useState(null);
-    const [fcmToken, setFcmToken] = useState(null);  
+    const [fcmToken, setFcmToken] = useState(null);
     const [loading, setLoading] = useState(true);
     const [emailVerification, setEmailVerification] = useState(false);
 
@@ -25,10 +25,9 @@ export const AuthProvider = ({ children }) => {
                     setEmailVerification(storedEmailVerification === 'true');
                 }
 
-                // Get FCM Token without storing it in AsyncStorage
+                
                 const fcmToken = await messaging().getToken();
                 setFcmToken(fcmToken);
-
             } catch (error) {
                 console.error('Error loading auth data:', error);
             }
@@ -57,7 +56,7 @@ export const AuthProvider = ({ children }) => {
             await AsyncStorage.setItem('token', data.token);
             await AsyncStorage.setItem('emailVerification', JSON.stringify(data.user.isEmailVerified));
 
-            // Get FCM token on login
+            
             const fcmToken = await messaging().getToken();
             setFcmToken(fcmToken);
         } catch (error) {
@@ -68,7 +67,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (name, email, password, phone, address) => {
         try {
-            const fcmToken = await messaging().getToken();  // Get FCM token
+            const fcmToken = await messaging().getToken();  
 
             const response = await fetch(`${Base_URL}/api/users/register`, {
                 method: 'POST',
@@ -95,9 +94,25 @@ export const AuthProvider = ({ children }) => {
         await AsyncStorage.removeItem('emailVerification');
     };
 
+    const updateEmailVerificationStatus = (status) => {
+        setEmailVerification(status);
+        AsyncStorage.setItem('emailVerification', JSON.stringify(status));
+    };
+
     return (
-        <AuthContext.Provider value={{ user, token, fcmToken, emailVerification, login, register, logout, loading }}>
+        <AuthContext.Provider value={{
+            user,
+            token,
+            fcmToken,
+            emailVerification,
+            login,
+            register,
+            logout,
+            loading,
+            updateEmailVerificationStatus
+        }}>
             {children}
         </AuthContext.Provider>
     );
 };
+ 

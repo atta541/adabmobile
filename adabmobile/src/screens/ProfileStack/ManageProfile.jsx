@@ -8,8 +8,10 @@ import Base_URL from '../../../Base_URL';
 const ManageProfile = () => {
   const navigation = useNavigation();
   const { token, user } = useContext(AuthContext);
+    const { emailVerification } = useContext(AuthContext); 
+  
 
-  // State variables for user details
+  
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
@@ -44,7 +46,7 @@ const ManageProfile = () => {
 
     const updatedData = { name, phone, address, currentPassword, newPassword };
     
-    if (!user.isEmailVerified) {
+    if (!emailVerification) {
       updatedData.email = email; 
     }
 
@@ -55,7 +57,7 @@ const ManageProfile = () => {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(updatedData),
+        body: JSON.stringify(updatedData), 
       });
 
       const data = await response.json();
@@ -96,9 +98,9 @@ const ManageProfile = () => {
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
-          editable={!user.isEmailVerified}
+          editable={!emailVerification}
         />
-        {user.isEmailVerified ? (
+        {emailVerification ? (
           <Text style={styles.verifiedText}>Verified</Text>
         ) : (
           <TouchableOpacity onPress={() => navigation.navigate('SendOTP')}>
