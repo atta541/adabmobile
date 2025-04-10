@@ -114,7 +114,7 @@ exports.getSubItemsWithItemDetails = async (req, res) => {
         console.log(category);
         let query = {};
         if (category) {
-            
+             
             const items = await Item.find({ category: category });
             const itemIds = items.map(item => item._id);
 

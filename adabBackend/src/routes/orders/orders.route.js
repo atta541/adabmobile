@@ -4,6 +4,7 @@ const orderController = require('../../controllers/orders/orders.controller');
 const authMiddleware = require('../users/authMiddleware');
 
 router.post('/', orderController.createOrder);
+router.post('/reorder/:orderId',authMiddleware, orderController.reorder);
 // router.get('/', orderController.getAllOrders);
 // router.get('/:id', orderController.getOrdersByUserId);
 

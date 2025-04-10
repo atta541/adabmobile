@@ -3,7 +3,7 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const nodemailer = require('nodemailer');
-const sendNotificationToDevice = require('../notifications/notification'); 
+const sendNotificationToDevice = require('../notifications/notification');
 
 const Cart = require('../../models/cart.model');
 
@@ -45,11 +45,11 @@ const generateInvoice = async (order) => {
                 "bottomNotice": "Thank you for your purchase!"
             };
 
-            
+
             const result = await easyinvoice.createInvoice(data);
             const filePath = path.join(__dirname, `../invoices/invoice-${order._id}.pdf`);
 
-            
+
             fs.writeFileSync(filePath, result.pdf, 'base64');
 
             resolve(filePath);
@@ -84,7 +84,7 @@ const sendInvoiceEmail = async (order, filePath) => {
 exports.createOrder = async (req, res) => {
     try {
         const { name, email, phone, address, nearestPlace, cartItems, totalPrice, fcmToken } = req.body;
-        const userId = req.body.userId || req.userId; 
+        const userId = req.body.userId || req.userId;
         console.log("cart items ", cartItems);
 
         if (!userId) {
@@ -109,7 +109,7 @@ exports.createOrder = async (req, res) => {
             );
         }
 
-        const deletedCart = await clearCart(userId); 
+        const deletedCart = await clearCart(userId);
 
         if (!deletedCart) {
             return res.status(404).json({ message: 'Cart not found' });
@@ -124,26 +124,26 @@ exports.createOrder = async (req, res) => {
 
 
 
-const clearCart = async (userId) => { 
-  try {
-     
-    if (!userId) {
-      console.error('clearCart function: User ID is missing');
-      return false;
+const clearCart = async (userId) => {
+    try {
+
+        if (!userId) {
+            console.error('clearCart function: User ID is missing');
+            return false;
+        }
+
+        const cart = await Cart.findOneAndDelete({ userId });
+
+        if (!cart) {
+            console.error('clearCart function: Cart not found');
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error('Error clearing cart:', error);
+        return false;
     }
-
-    const cart = await Cart.findOneAndDelete({ userId });
-
-    if (!cart) {
-      console.error('clearCart function: Cart not found');
-      return false;
-    }
-
-    return true; 
-  } catch (error) {
-    console.error('Error clearing cart:', error);
-    return false;
-  }
 };
 
 
@@ -161,8 +161,8 @@ exports.getAllOrders = async (req, res) => {
 
 exports.getAllOrdersOfUser = async (req, res) => {
     try {
-
-        const userId = req.user.id; // Extract userId from req.user (set by authMiddleware)
+        console.log('Fetching orders for user...');
+        const userId = req.user.id;
 
         if (!userId) {
             return res.status(400).json({ message: 'User ID is required' });
@@ -170,7 +170,7 @@ exports.getAllOrdersOfUser = async (req, res) => {
 
         console.log('Fetching orders for userId:', userId, 'Type:', typeof userId);
 
-        // Ensure userId is a string when querying the database
+
         const orders = await Order.find({ userId: String(userId) });
 
         if (!orders || orders.length === 0) {
@@ -212,3 +212,60 @@ exports.deleteOrder = async (req, res) => {
 
 
 
+
+
+exports.reorder = async (req, res) => {
+    try {
+        console.log('Reorder function called');
+        console.log('Request body:', req.body);
+        const { orderId } = req.params;
+        console.log('Order ID:', orderId);
+        const userId = req.body.userId || req.userId || req.user.id;
+
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required.' });
+        }
+
+        const originalOrder = await Order.findById(orderId);
+
+        if (!originalOrder) {
+            return res.status(404).json({ message: 'Original order not found.' });
+        }
+
+        // Duplicate the order data
+        const newOrderData = {
+            name: originalOrder.name,
+            email: originalOrder.email,
+            phone: originalOrder.phone,
+            address: originalOrder.address,
+            nearestPlace: originalOrder.nearestPlace,
+            cartItems: originalOrder.cartItems,
+            totalPrice: originalOrder.totalPrice,
+            orderType:"reorder",
+            userId: userId
+        };
+
+        const newOrder = new Order(newOrderData);
+        await newOrder.save();
+
+        // Generate and send invoice
+        const invoicePath = await generateInvoice(newOrder);
+        await sendInvoiceEmail(newOrder, invoicePath);
+
+        // Optional FCM notification
+        const fcmToken = req.body.fcmToken;
+        if (fcmToken) {
+            await sendNotificationToDevice(
+                fcmToken,
+                'Your reorder has been placed',
+                `Hi ${newOrder.name}, your reorder has been successfully placed.`
+            );
+        }
+
+        console.log('New order created:', );
+        res.status(201).json({ message: 'Reorder placed successfully!', order: newOrder });
+
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to reorder', error: error.message });
+    }
+};
