@@ -6,6 +6,7 @@ import CheckVerificationScreen from '../../components/EmailVerification/CheckVer
 import SendOTPVerificationScreen from '../../components/EmailVerification/SendOTPVerificationScreen';
 import VerifyOTPScreen from '../../components/EmailVerification/VerifyOTPScreen';
 import Orders from './Orders';
+import ContactUs from './ContactUs';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,6 +33,19 @@ const ProfileStack = () => {
         component={Orders} 
         options={{ 
           title: 'Orders',
+          headerStyle: { backgroundColor: 'black' }, 
+          headerTintColor: 'white', 
+          headerTitleStyle: { fontWeight: 'bold' } 
+        }} 
+      />
+
+
+      
+<Stack.Screen 
+        name="contactus" 
+        component={ContactUs} 
+        options={{ 
+          title: 'Contact Us',
           headerStyle: { backgroundColor: 'black' }, 
           headerTintColor: 'white', 
           headerTitleStyle: { fontWeight: 'bold' } 

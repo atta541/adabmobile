@@ -8,10 +8,7 @@ import Base_URL from '../../../Base_URL';
 const ManageProfile = () => {
   const navigation = useNavigation();
   const { token, user } = useContext(AuthContext);
-    const { emailVerification } = useContext(AuthContext); 
-  
-
-  
+  const { emailVerification } = useContext(AuthContext); 
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
@@ -24,7 +21,7 @@ const ManageProfile = () => {
       setName(user.name || '');
       setEmail(user.email || '');
       setPhone(user.phone || '');
-      setAddress(user.address || '');
+      setAddress(user.address || ''); 
     }
   }, [user]);
 

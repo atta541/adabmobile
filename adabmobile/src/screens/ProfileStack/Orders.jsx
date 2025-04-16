@@ -15,6 +15,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../context/AuthContext';
 import Base_URL from '../../../Base_URL';
 
+import { useAlert } from '../../context/AlertContext'; // adjust path if needed
+
 
 const ORDERS_CACHE_KEY = (token) => `orders_cache_${token}`;
 const CACHE_EXPIRY_TIME = 15 * 60 * 1000;
@@ -27,6 +29,8 @@ const Orders = () => {
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(null);
+  const { showAlert } = useAlert(); // ✅ access the custom alert
+
 
 
   const fetchOrders = useCallback(async (forceRefresh = false) => {
@@ -97,41 +101,40 @@ const Orders = () => {
     }
   }, [token, fetchOrders]);
 
+
+
   const reorder = useCallback(async (orderId) => {
-    try {
-      Alert.alert(
-        'Reorder Confirmation',
-        'Are you sure you want to reorder this order?',
-        [
-          {
-            text: 'Cancel',
-            style: 'cancel',
-          },
-          { 
-            text: 'Yes',
-            onPress: async () => {
+    showAlert({
+      title: 'Reorder Confirmation',
+      message: 'Are you sure you want to reorder this order?',
+      cancelText: 'Cancel',
+      confirmText: 'Yes',
+      onCancel: () => {}, 
+      onConfirm: async () => {
+        try {
+          const response = await fetch(`${Base_URL}/api/orders/reorder/${orderId}`, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
 
-                const response = await fetch(`${Base_URL}/api/orders/reorder/${orderId}`, {
-                method: 'POST',
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-              });
-              if (!response.ok) throw new Error('Failed to reorder items');
-              const data = await response.json();
-              setOrders(data);
+          if (!response.ok) throw new Error('Failed to reorder items');
 
-            }
-          }, 
-
-        ] )
-
-    } catch (error) {
-      console.error('Reorder error:', error);
-    }
-  })
-
+          const data = await response.json();
+          setOrders(data);
+        } catch (error) {
+          console.error('Reorder error:', error);
+          showAlert({
+            title: 'Error',
+            message: 'Something went wrong while reordering.',
+            onConfirm: () => {}
+          });
+        }
+      }
+    });
+  });
 
 
   const toggleDropdown = useCallback((index) => {
@@ -553,3 +556,8 @@ const styles = StyleSheet.create({
 });
 
 export default Orders;
+
+
+
+
+

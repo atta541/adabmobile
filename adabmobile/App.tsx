@@ -6,6 +6,7 @@ import AuthNavigator from './src/navigation/AuthNavigator';
 import { UserDetailsProvider } from './src/context/UserDetailsContext';
 import messaging from '@react-native-firebase/messaging';
 import { PermissionsAndroid, Platform } from 'react-native';
+import {AlertProvider } from './src/context/AlertContext';
 
 export default function App() {
   useEffect(() => {
@@ -36,11 +37,13 @@ export default function App() {
 
   return (
     <AuthProvider>
+      <AlertProvider>
       <NavigationContainer>
         <UserDetailsProvider>
           <MainNavigator />
         </UserDetailsProvider>
       </NavigationContainer>
+      </AlertProvider>
     </AuthProvider>
   );
 }

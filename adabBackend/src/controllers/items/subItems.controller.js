@@ -2,7 +2,7 @@ const SubItem = require('../../models/subItems.model');
 const Item = require('../../models/items.model');
 
 
-
+ 
 exports.createSubItem = async (req, res) => {
     try {
         const { name, description, price, picture, itemId } = req.body;
@@ -18,7 +18,7 @@ exports.createSubItem = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-};
+}; 
 
 exports.getSubItemsByItemId = async (req, res) => {
     try {
@@ -76,7 +76,7 @@ exports.deleteSubItem = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-};
+}; 
 
 
 

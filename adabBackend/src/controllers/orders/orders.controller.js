@@ -95,11 +95,13 @@ exports.createOrder = async (req, res) => {
             return res.status(400).json({ message: 'All fields are required!' });
         }
 
-        const newOrder = new Order({ name, email, phone, address, nearestPlace, cartItems, totalPrice, userId });
+        const newOrder = new Order({ name, email, phone, address, nearestPlace, cartItems, totalPrice, userId, });
 
         await newOrder.save();
-        const invoicePath = await generateInvoice(newOrder);
-        await sendInvoiceEmail(newOrder, invoicePath);
+
+        // // uncomment the following lines to generate and send invoice
+        // // const invoicePath = await generateInvoice(newOrder);
+        // // await sendInvoiceEmail(newOrder, invoicePath);
 
         if (fcmToken) {
             await sendNotificationToDevice(
@@ -126,6 +128,7 @@ exports.createOrder = async (req, res) => {
 
 const clearCart = async (userId) => {
     try {
+        console.log('Clearing cart for userId:');
 
         if (!userId) {
             console.error('clearCart function: User ID is missing');
@@ -242,15 +245,16 @@ exports.reorder = async (req, res) => {
             cartItems: originalOrder.cartItems,
             totalPrice: originalOrder.totalPrice,
             orderType:"reorder",
-            userId: userId
+            userId: userId 
         };
 
         const newOrder = new Order(newOrderData);
         await newOrder.save();
 
-        // Generate and send invoice
-        const invoicePath = await generateInvoice(newOrder);
-        await sendInvoiceEmail(newOrder, invoicePath);
+        // // Generate and send invoice
+        // // Uncomment the following lines to enable invoice generation and emailing
+        // // const invoicePath = await generateInvoice(newOrder);
+        // // await sendInvoiceEmail(newOrder, invoicePath);
 
         // Optional FCM notification
         const fcmToken = req.body.fcmToken;

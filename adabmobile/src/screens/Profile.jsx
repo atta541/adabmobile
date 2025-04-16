@@ -65,6 +65,17 @@ const Profile = ({ navigation }) => {
         </View>
       </TouchableOpacity>
 
+
+      <TouchableOpacity 
+        style={styles.button} 
+        onPress={() => navigation.navigate('contactus')}
+      >
+        <View style={styles.buttonContent}>
+          <Icon name="contact-support" size={20} color="black" style={styles.icon} />
+          <Text style={styles.buttonText}>Contact Us</Text>
+        </View>
+      </TouchableOpacity>
+
       {/* Logout Button */}
       <TouchableOpacity 
         style={[styles.button, styles.logoutButton]} 
